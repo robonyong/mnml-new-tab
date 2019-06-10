@@ -28,6 +28,8 @@ import * as storage from "../storage";
 
 import { TodoRecord } from "../types";
 
+type TodoKeys = "todos" | "completedTodos";
+
 // @ts-ignore
 const checkCast = (input: any): T => input;
 
@@ -41,7 +43,7 @@ export default class TodoContainer extends Vue {
   todos: TodoRecord[] = [];
   completedTodos: TodoRecord[] = [];
 
-  created() {
+  mounted() {
     storage.get("todos").then((storedTodos?: any) => {
       const loadedTodos: TodoRecord[] = checkCast(storedTodos);
       this.todos = loadedTodos ? loadedTodos : [];
@@ -60,41 +62,58 @@ export default class TodoContainer extends Vue {
     });
   }
 
+  setupStorageSubs(key: TodoKeys) {
+    storage.get(key).then((storedTodos: any = []) => {
+      const loadedTodos: TodoRecord[] = checkCast(storedTodos);
+      this[key] = loadedTodos;
+    });
+
+    storage.subscribe(key, (changes: any) => {
+      const changedTodos: TodoRecord[] = checkCast(changes);
+      this[key] = changedTodos ? changedTodos : [];
+    });
+  }
+
   addNewTodo(newTodo: TodoRecord) {
     this.todos.unshift(newTodo);
     storage.set({ todos: this.todos });
   }
 
-  removeTodo(key: "todos" | "completedTodos") {
+  removeTodo(key: TodoKeys) {
     return (index: number) => () => {
       this[key].splice(index, 1);
       storage.set({ [key]: this[key] });
     };
   }
 
-  onCheck(key: "todos" | "completedTodos") {
+  onToggleTodo(toKey: TodoKeys, index: number, element: TodoRecord) {
+    const updatedElement = {
+      ...element,
+      completed: toKey === "todos" ? false : true
+    };
+    this[toKey].splice(index, 1, updatedElement);
+  }
+
+  onCheck(key: TodoKeys) {
     return (index: number) => () => {
       const toKey = key === "todos" ? "completedTodos" : "todos";
       const element = this[key].splice(index, 1)[0];
-      const newElement = {
-        ...element,
-        completed: toKey === "todos" ? false : true
-      };
-      this[toKey].unshift(newElement);
-      storage.set({ [key]: this[key], [toKey]: this[toKey] });
+      this[toKey].unshift(element);
+      this.onToggleTodo(toKey, 0, element);
+      this.$nextTick(() => {
+        storage.set({ [key]: this[key], [toKey]: this[toKey] });
+      });
     };
   }
 
-  onListDragUpdated(key: "todos" | "completedTodos") {
+  onListDragUpdated(key: TodoKeys) {
     return (event: any) => {
       if (event.added) {
-        const element = {
-          ...event.added.element,
-          completed: key === "todos" ? false : true
-        };
-        this[key].splice(event.added.newIndex, 1, element);
+        this.onToggleTodo(key, event.added.newIndex, event.added.element);
       }
-      storage.set({ [key]: this[key] });
+      this.$nextTick(() => {
+        storage.set({ [key]: this[key] });
+      });
     };
   }
 }

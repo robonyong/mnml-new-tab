@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts">
-import "reflect-metadata";
 import { Component, Vue } from "vue-property-decorator";
 
 import { library } from "@fortawesome/fontawesome-svg-core";

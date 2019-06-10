@@ -24,7 +24,7 @@ export const set = (object: Object) =>
 export const subscribe = (key: string, cb: (changes: any) => void) =>
   new Promise(resolve => {
     if (env === "development") {
-      window.addEventListener("storage", (event) => {
+      window.addEventListener("storage", event => {
         if (event.key === key) {
           cb(event.newValue ? JSON.parse(event.newValue) : null);
         }

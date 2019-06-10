@@ -1,2 +1,2 @@
-declare module 'vuedraggable';
-declare module 'autosize';
+declare module "vuedraggable";
+declare module "autosize";
