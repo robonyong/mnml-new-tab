@@ -1,0 +1,66 @@
+<template>
+  <div class="todo-item" :class="{ completed }">
+    <div>
+      <font-awesome-icon
+        class="icon"
+        size="xs"
+        :icon="checkIcon"
+        @mouseover="onMouseover"
+        @mouseout="onMouseout"
+        @click="onCheck"
+      />
+      {{ text }}
+    </div>
+    <font-awesome-icon
+      class="icon"
+      icon="trash-alt"
+      size="xs"
+      @click="onRemove"
+    />
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+@Component({
+  components: {
+    "font-awesome-icon": FontAwesomeIcon
+  }
+})
+export default class TodoItem extends Vue {
+  @Prop(String) id!: string;
+  @Prop(String) text!: string;
+  @Prop(Boolean) completed!: boolean;
+  @Prop(Function) onCheck!: () => void;
+  @Prop(Function) onRemove!: () => void;
+
+  checkIcon: String = this.completed ? "check-square" : "square";
+
+  onMouseover() {
+    this.checkIcon = this.completed ? "square" : "check-square";
+  }
+
+  onMouseout() {
+    this.checkIcon = this.completed ? "check-square" : "square";
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #777;
+  cursor: move;
+  min-height: 20px;
+  &.completed {
+    text-decoration: line-through;
+  }
+  .icon {
+    cursor: pointer;
+  }
+}
+</style>

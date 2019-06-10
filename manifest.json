@@ -1,0 +1,8 @@
+{
+  "name": "mnml new tab",
+  "description": "New Tab but only with the things I want",
+  "version": "0.0.1",
+  "chrome_url_overrides": {"newtab": "dist/index.html"},
+  "permissions": ["storage"],
+  "manifest_version": 2
+}
