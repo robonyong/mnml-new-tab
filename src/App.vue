@@ -9,16 +9,46 @@ import { Component, Vue } from "vue-property-decorator";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
+  faBold,
+  faItalic,
+  faStrikethrough,
+  faCode,
   faCheckSquare,
+  faExternalLinkAlt,
+  faGlassCheers,
+  faGripLines,
+  faLink,
+  faRedo,
   faSquare,
-  faTrashAlt
+  faTrashAlt,
+  faUndo,
+  faUnderline,
+  faVideo
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-import NewTab from "./components/NewTab.vue";
 import "normalize.css";
+require("vue-foldable/dist/vue-foldable.css");
 
-library.add(faCheckSquare, faSquare, faTrashAlt);
+import NewTab from "./components/NewTab.vue";
+
+library.add(
+  faBold,
+  faItalic,
+  faUnderline,
+  faStrikethrough,
+  faCode,
+  faLink,
+  faGripLines,
+  faUndo,
+  faRedo,
+  faCheckSquare,
+  faExternalLinkAlt,
+  faGlassCheers,
+  faSquare,
+  faTrashAlt,
+  faVideo
+);
 
 @Component({
   components: {
@@ -37,5 +67,16 @@ export default class App extends Vue {}
   color: #ddd;
   font-size: 18px;
   line-height: 1.5;
+}
+
+.small {
+  font-size: 0.75em;
+}
+
+a {
+  color: #ddd;
+  &:hover {
+    color: initial;
+  }
 }
 </style>

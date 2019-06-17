@@ -92,6 +92,9 @@ export default class TodoContainer extends Vue {
       completed: toKey === "todos" ? false : true
     };
     this[toKey].splice(index, 1, updatedElement);
+    this.$nextTick(() => {
+      storage.set({ [toKey]: this[toKey] });
+    });
   }
 
   onCheck(key: TodoKeys) {
@@ -101,7 +104,7 @@ export default class TodoContainer extends Vue {
       this[toKey].unshift(element);
       this.onToggleTodo(toKey, 0, element);
       this.$nextTick(() => {
-        storage.set({ [key]: this[key], [toKey]: this[toKey] });
+        storage.set({ [key]: this[key] });
       });
     };
   }
@@ -110,10 +113,11 @@ export default class TodoContainer extends Vue {
     return (event: any) => {
       if (event.added) {
         this.onToggleTodo(key, event.added.newIndex, event.added.element);
+      } else {
+        this.$nextTick(() => {
+          storage.set({ [key]: this[key] });
+        });
       }
-      this.$nextTick(() => {
-        storage.set({ [key]: this[key] });
-      });
     };
   }
 }

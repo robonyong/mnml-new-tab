@@ -1,2 +1,4 @@
 declare module "vuedraggable";
-declare module "autosize";
+declare module "tiptap";
+declare module "tiptap-extensions";
+declare module "vue-foldable";
