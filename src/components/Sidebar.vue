@@ -143,6 +143,7 @@ export default class Sidebar extends Vue {
   display: flex;
   flex-direction: column;
   text-align: right;
+  min-width: 0;
 }
 
 button {

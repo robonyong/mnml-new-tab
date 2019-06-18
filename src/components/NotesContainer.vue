@@ -88,7 +88,7 @@ import * as storage from "../storage";
 
 const updateNotes = debounce((notes: string) => {
   storage.set({ todoNotes: notes });
-}, 500);
+}, 1000);
 
 @Component({
   components: {
@@ -100,6 +100,7 @@ const updateNotes = debounce((notes: string) => {
 })
 export default class NotesContainer extends Vue {
   notes: string = "";
+  lastUpdated = Date.now();
   editor = new Editor({
     extensions: [
       new Bold(),
@@ -113,10 +114,8 @@ export default class NotesContainer extends Vue {
     ],
     content: "",
     onUpdate: ({ getHTML }: { getHTML: () => string }) => {
-      this.notes = getHTML();
-      this.$nextTick(() => {
-        updateNotes(this.notes);
-      });
+      this.lastUpdated = Date.now();
+      updateNotes(getHTML());
     }
   });
 
@@ -126,16 +125,15 @@ export default class NotesContainer extends Vue {
 
   mounted() {
     storage.get("todoNotes").then((storedNotes: any) => {
-      this.notes = storedNotes;
-      this.$nextTick(() => {
-        this.editor.setContent(this.notes);
-      });
+      this.editor.setContent(storedNotes);
     });
     storage.subscribe("todoNotes", (changes: any) => {
-      this.notes = changes;
-      this.$nextTick(() => {
-        this.editor.setContent(this.notes);
-      });
+      if (
+        this.editor.getHTML() !== changes &&
+        Date.now() - this.lastUpdated > 1000
+      ) {
+        this.editor.setContent(changes);
+      }
     });
   }
 }
