@@ -36,4 +36,8 @@ export default class NewTab extends Vue {}
     padding: 15px;
   }
 }
+
+::-webkit-scrollbar {
+  background: #333;
+}
 </style>

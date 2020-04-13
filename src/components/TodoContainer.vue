@@ -89,8 +89,10 @@ export default class TodoContainer extends Vue {
   onToggleTodo(toKey: TodoKeys, index: number, element: TodoRecord) {
     const updatedElement = {
       ...element,
-      completed: toKey === "todos" ? false : true
+      completed: !element.completed,
     };
+
+    console.log(updatedElement);
     this[toKey].splice(index, 1, updatedElement);
     this.$nextTick(() => {
       storage.set({ [toKey]: this[toKey] });
@@ -113,9 +115,9 @@ export default class TodoContainer extends Vue {
     return (event: any) => {
       if (event.added) {
         this.onToggleTodo(key, event.added.newIndex, event.added.element);
-      } else {
+      } else if (event.removed) {
         this.$nextTick(() => {
-          storage.set({ [key]: this[key] });
+          storage.set({ [key]: this[key].splice(event.removed.oldIndex, 1) });
         });
       }
     };

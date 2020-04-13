@@ -1,4 +1,7 @@
 # mnml-new-tab
+another blandly minimal chrome extension for listing todos, checking them off, and potentially clearing them at the end of the day.
+
+includes a spot for rich text notes and a column for a daily calendar view.
 
 ## Project setup
 ```
