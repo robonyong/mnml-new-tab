@@ -10,8 +10,7 @@
         @click="onCheck"
       />
       &nbsp;
-      <input v-if="!this.completed" v-model="todoText" class="todo-edit" />
-      <span v-if="this.completed">{{text}}</span>
+      {{ text }}
     </div>
     <font-awesome-icon
       class="icon"
@@ -37,13 +36,16 @@ export default class TodoItem extends Vue {
   @Prop(Boolean) completed!: boolean;
   @Prop(Function) onCheck!: () => void;
   @Prop(Function) onRemove!: () => void;
-  todoText = this.text;
   isMousedOver = false;
 
   get checkIcon() {
     return this.completed
-      ? this.isMousedOver ? "square" : "check-square"
-      : this.isMousedOver ? "check-square" : "square";
+      ? this.isMousedOver
+        ? "square"
+        : "check-square"
+      : this.isMousedOver
+      ? "check-square"
+      : "square";
   }
 
   onMouseover() {
