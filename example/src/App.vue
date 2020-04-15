@@ -28,5 +28,6 @@ body {
   background: #333;
   color: #ddd;
   min-height: 100vh;
+  padding: 30px;
 }
 </style>
