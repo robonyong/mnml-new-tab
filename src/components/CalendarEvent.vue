@@ -13,7 +13,7 @@
             ><font-awesome-icon icon="external-link-alt"></font-awesome-icon
           ></a>
         </div>
-        <div class="small">{{ location }}</div>
+        <div class="small">Location: {{ location }}</div>
         <div v-html="event.description"></div>
       </div>
     </foldable>
@@ -40,10 +40,6 @@ export default class CalendarEvent extends Vue {
 
   parse = parse;
   format = format;
-
-  updated() {
-    console.log("updated");
-  }
 
   get location() {
     return this.event.location || "N/A";

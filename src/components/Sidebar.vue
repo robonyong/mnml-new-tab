@@ -11,6 +11,7 @@
       <div>to display today's events</div>
     </div>
     <div v-if="oauthState === LoggedInStates.LOGGED_IN">
+      <div><button @click="logout">Logout</button></div>
       <div v-if="calendarEvents.length === 0">
         No more scheduled events today
         <font-awesome-icon icon="glass-cheers" size="xs" />
@@ -45,10 +46,13 @@ enum LoggedInStates {
 }
 
 type Calendar = {
-  summary: String;
-  timeZone: String;
+  summary: string;
+  timeZone: string;
   items: CalendarEventRecord[];
 };
+
+// @ts-ignore
+const checkCast = (input: any): T => input;
 
 @Component({
   components: {
@@ -57,6 +61,7 @@ type Calendar = {
   }
 })
 export default class Sidebar extends Vue {
+  attemptedRelogin = false;
   format = format;
   now = new Date();
   oauthState = LoggedInStates.UNKNOWN;
@@ -76,7 +81,8 @@ export default class Sidebar extends Vue {
     storage.get("oauthToken").then(response => {
       if (response) {
         this.oauthState = LoggedInStates.LOGGED_IN;
-        this.fetchEvents();
+        const authToken: string = checkCast(response);
+        this.fetchEvents(authToken);
       } else {
         this.oauthState = LoggedInStates.LOGGED_OUT;
       }
@@ -92,7 +98,7 @@ export default class Sidebar extends Vue {
       if (token) {
         storage.set({ oauthToken: token });
         this.oauthState = LoggedInStates.LOGGED_IN;
-        this.fetchEvents();
+        this.fetchEvents(token);
       } else {
         storage.set({ oauthToken: "" });
         this.oauthState = LoggedInStates.FAILED;
@@ -100,38 +106,56 @@ export default class Sidebar extends Vue {
     });
   }
 
-  fetchEvents() {
-    storage.get("oauthToken").then(token => {
-      const now = format(new Date(), "YYYY-MM-DD[T]HH:mm:ssZ");
-      const eod = format(endOfDay(new Date()), "YYYY-MM-DD[T]HH:mm:ssZ");
-      fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/primary/events?orderBy=startTime&timeMin=${now}&timeMax=${eod}&singleEvents=true&key=${API_KEY}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
-      )
-        .then((response: Response) => {
-          if (!response.ok) {
-            throw new Error(
-              `Request failed with ${response.status} - ${response.statusText}`
-            );
-          }
-          return response.json();
-        })
-        .then((calendar: Calendar) => {
-          this.calendarEmail = calendar.summary;
-          this.calendarTimeZone = calendar.timeZone;
-          this.calendarEvents = calendar.items;
-        })
-        .catch(error => {
-          console.error(error);
-          this.login();
-        });
+  logout() {
+    storage.set({ oauthToken: "" });
+    this.oauthState = LoggedInStates.LOGGED_OUT;
+  }
+
+  failLogin(token: string) {
+    chrome.identity.removeCachedAuthToken({ token }, () => {
+      if (!this.attemptedRelogin) {
+        this.attemptedRelogin = true;
+        this.login();
+        return;
+      }
+      storage.set({ oauthToken: "" });
+      this.oauthState = LoggedInStates.FAILED;
     });
+  }
+
+  fetchEvents(token: string) {
+    if (!token) {
+      throw new Error("Empty token");
+    }
+    const now = format(new Date(), "YYYY-MM-DD[T]HH:mm:ssZ");
+    const eod = format(endOfDay(new Date()), "YYYY-MM-DD[T]HH:mm:ssZ");
+    fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?orderBy=startTime&timeMin=${now}&timeMax=${eod}&singleEvents=true&key=${API_KEY}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      }
+    )
+      .then((response: Response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Request failed with ${response.status} - ${response.statusText}`
+          );
+        }
+        return response.json();
+      })
+      .then((calendar: Calendar) => {
+        this.calendarEmail = calendar.summary;
+        this.calendarTimeZone = calendar.timeZone;
+        this.calendarEvents = calendar.items;
+      })
+      .catch((error: Error) => {
+        console.error(error);
+        this.failLogin(token);
+      });
   }
 }
 </script>
