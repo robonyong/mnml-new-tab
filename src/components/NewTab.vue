@@ -1,20 +1,20 @@
 <template>
   <div class="container">
     <TodoContainer />
-    <NotesContainer />
+    <Notes />
     <Sidebar />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import NotesContainer from "./NotesContainer.vue";
+import Notes from "./Notes.vue";
 import Sidebar from "./Sidebar.vue";
 import TodoContainer from "./TodoContainer.vue";
 
 @Component({
   components: {
-    NotesContainer,
+    Notes,
     Sidebar,
     TodoContainer
   }

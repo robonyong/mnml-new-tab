@@ -13,6 +13,7 @@ import {
   faItalic,
   faStrikethrough,
   faCode,
+  faCheck,
   faCheckSquare,
   faExternalLinkAlt,
   faGlassCheers,
@@ -20,6 +21,7 @@ import {
   faLink,
   faRedo,
   faSquare,
+  faTimes,
   faTrashAlt,
   faUndo,
   faUnderline,
@@ -28,6 +30,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import "normalize.css";
+import "quill/dist/quill.core.css";
+import "quill/dist/quill.snow.css";
 require("vue-foldable/dist/vue-foldable.css");
 
 import NewTab from "./components/NewTab.vue";
@@ -37,6 +41,7 @@ library.add(
   faItalic,
   faUnderline,
   faStrikethrough,
+  faCheck,
   faCode,
   faLink,
   faGripLines,
@@ -46,6 +51,7 @@ library.add(
   faExternalLinkAlt,
   faGlassCheers,
   faSquare,
+  faTimes,
   faTrashAlt,
   faVideo
 );

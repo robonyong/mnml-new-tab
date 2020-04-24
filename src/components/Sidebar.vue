@@ -163,7 +163,7 @@ export default class Sidebar extends Vue {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .sidebar {
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
   text-align: right;
