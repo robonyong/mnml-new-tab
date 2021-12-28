@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType, ref, computed } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { parse, format } from "date-fns";
 
@@ -29,22 +29,29 @@ import foldable from "./Foldable.vue";
 
 import { CalendarEventRecord } from "../types";
 
-@Component({
+export default defineComponent({
   components: {
     foldable,
-    "font-awesome-icon": FontAwesomeIcon
-  }
-})
-export default class CalendarEvent extends Vue {
-  @Prop(Object) event!: CalendarEventRecord;
-
-  parse = parse;
-  format = format;
-
-  get location() {
-    return this.event.location || "N/A";
-  }
-}
+    "font-awesome-icon": FontAwesomeIcon,
+  },
+  data() {
+    return {
+      parse,
+      format,
+    };
+  },
+  props: {
+    event: {
+      required: true,
+      type: Object as PropType<CalendarEventRecord>,
+    },
+  },
+  computed: {
+    location: function (): string {
+      return this.event.location || "N/A";
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

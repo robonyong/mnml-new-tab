@@ -3,26 +3,35 @@
 </template>
 
 <script lang="ts">
-import { Component, Model, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType } from "vue";
 import nanoid from "nanoid";
 
 import { TodoRecord } from "../types";
 
-@Component
-export default class TodoInput extends Vue {
-  @Prop(Function) onAdd!: (newTodo: TodoRecord) => void;
-  todoText = "";
-
-  add() {
-    const newTodo = {
-      id: nanoid(),
-      text: this.todoText,
-      completed: false
+export default defineComponent({
+  data() {
+    return {
+      todoText: "",
     };
-    this.onAdd(newTodo);
-    this.todoText = "";
-  }
-}
+  },
+  props: {
+    onAdd: {
+      required: true,
+      type: Function as PropType<(newTodo: TodoRecord) => void>,
+    },
+  },
+  methods: {
+    add() {
+      const newTodo = {
+        id: nanoid(),
+        text: this.todoText,
+        completed: false,
+      };
+      this.onAdd(newTodo);
+      this.todoText = "";
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

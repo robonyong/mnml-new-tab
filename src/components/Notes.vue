@@ -2,6 +2,7 @@
   <div class="notes-container">
     <h2>notes</h2>
     <quill-editor
+      theme="snow"
       class="notes-editor"
       :content="notes"
       :options="editorOptions"
@@ -11,9 +12,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { quillEditor } from "vue-quill-editor";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { defineComponent } from "vue";
+import { QuillEditor } from "@vueup/vue-quill";
 import { debounce } from "ts-debounce";
 
 import * as storage from "../storage";
@@ -22,33 +22,18 @@ const updateNotes = debounce((notes: string) => {
   storage.set({ todoNotes: notes });
 }, 1000);
 
-@Component({
+export default defineComponent({
+  name: "Notes",
   components: {
-    quillEditor
-  }
-})
-export default class Notes extends Vue {
-  notes: string = "";
-  lastUpdated = Date.now();
-
-  editorOptions = {
-    theme: "snow",
-    boundary: document.body,
-    modules: {
-      toolbar: [
-        ["bold", "italic", "underline", "strike"],
-        ["blockquote", "code-block", "link"],
-        ["clean"]
-      ],
-      history: {
-        delay: 500,
-        userOnly: true
-      }
+    "quill-editor": QuillEditor,
+  },
+  methods: {
+    onEditorChange({ html }: { html: string }) {
+      this.lastUpdated = Date.now();
+      this.notes = html;
+      updateNotes(html);
     },
-    placeholder: "Start jotting some notes",
-    readOnly: false
-  };
-
+  },
   mounted() {
     storage.get("todoNotes").then((storedNotes: any) => {
       this.notes = storedNotes;
@@ -58,14 +43,31 @@ export default class Notes extends Vue {
         this.notes = changes;
       }
     });
-  }
-
-  onEditorChange({ html }: { html: string }) {
-    this.lastUpdated = Date.now();
-    this.notes = html;
-    updateNotes(html);
-  }
-}
+  },
+  data() {
+    return {
+      notes: "",
+      lastUpdated: Date.now(),
+      editorOptions: {
+        theme: "snow",
+        boundary: document.body,
+        modules: {
+          toolbar: [
+            ["bold", "italic", "underline", "strike"],
+            ["blockquote", "code-block", "link"],
+            ["clean"],
+          ],
+          history: {
+            delay: 500,
+            userOnly: true,
+          },
+        },
+        placeholder: "Start jotting some notes",
+        readOnly: false,
+      },
+    };
+  },
+});
 </script>
 
 <style scoped lang="scss">
@@ -85,5 +87,11 @@ export default class Notes extends Vue {
   height: auto;
   font-size: inherit;
   font-family: inherit;
+}
+.ql-toolbar.ql-snow {
+  background: #d1d5db;
+}
+.ql-editor.ql-before {
+  color: #ddd;
 }
 </style>

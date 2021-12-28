@@ -1,7 +1,7 @@
 const env = process.env.NODE_ENV;
 
 export const get = (key: string) =>
-  new Promise(resolve => {
+  new Promise((resolve) => {
     if (env === "development") {
       const response = localStorage.getItem(key);
       resolve(response ? JSON.parse(response) : null);
@@ -11,7 +11,7 @@ export const get = (key: string) =>
   });
 
 export const set = (object: Object) =>
-  new Promise(resolve => {
+  new Promise<void>((resolve) => {
     if (env === "development") {
       Object.entries(object).forEach(([key, value]) => {
         localStorage.setItem(key, JSON.stringify(value));
@@ -22,9 +22,9 @@ export const set = (object: Object) =>
   });
 
 export const subscribe = (key: string, cb: (changes: any) => void) =>
-  new Promise(resolve => {
+  new Promise<void>((resolve) => {
     if (env === "development") {
-      window.addEventListener("storage", event => {
+      window.addEventListener("storage", (event) => {
         if (event.key === key) {
           cb(event.newValue ? JSON.parse(event.newValue) : null);
         }
