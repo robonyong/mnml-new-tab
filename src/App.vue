@@ -5,8 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-
+import { defineComponent } from "vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faBold,
@@ -25,13 +24,11 @@ import {
   faTrashAlt,
   faUndo,
   faUnderline,
-  faVideo
+  faVideo,
 } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 import "normalize.css";
-import "quill/dist/quill.core.css";
-import "quill/dist/quill.snow.css";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 require("vue-foldable/dist/vue-foldable.css");
 
 import NewTab from "./components/NewTab.vue";
@@ -56,12 +53,12 @@ library.add(
   faVideo
 );
 
-@Component({
+export default defineComponent({
+  name: "App",
   components: {
-    NewTab
-  }
-})
-export default class App extends Vue {}
+    NewTab,
+  },
+});
 </script>
 
 <style lang="scss">

@@ -6,6 +6,7 @@ node_modules
 .env.local
 .env.*.local
 **/manifest.json
+**/config.ts
 
 # Log files
 npm-debug.log*

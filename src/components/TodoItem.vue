@@ -22,40 +22,56 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { defineComponent } from "vue";
 
-@Component({
-  components: {
-    "font-awesome-icon": FontAwesomeIcon
-  }
-})
-export default class TodoItem extends Vue {
-  @Prop(String) id!: string;
-  @Prop(String) text!: string;
-  @Prop(Boolean) completed!: boolean;
-  @Prop(Function) onCheck!: () => void;
-  @Prop(Function) onRemove!: () => void;
-  isMousedOver = false;
-
-  get checkIcon() {
-    return this.completed
-      ? this.isMousedOver
-        ? "square"
-        : "check-square"
-      : this.isMousedOver
-      ? "check-square"
-      : "square";
-  }
-
-  onMouseover() {
-    this.isMousedOver = true;
-  }
-
-  onMouseout() {
-    this.isMousedOver = false;
-  }
-}
+export default defineComponent({
+  props: {
+    id: {
+      required: true,
+      type: String,
+    },
+    text: {
+      required: true,
+      type: String,
+    },
+    completed: {
+      required: true,
+      type: Boolean,
+    },
+    onCheck: {
+      required: true,
+      type: Function,
+    },
+    onRemove: {
+      required: true,
+      type: Function,
+    },
+  },
+  data() {
+    return {
+      isMousedOver: false,
+    };
+  },
+  computed: {
+    checkIcon: function (): string {
+      return this.completed
+        ? this.isMousedOver
+          ? "square"
+          : "check-square"
+        : this.isMousedOver
+        ? "check-square"
+        : "square";
+    },
+  },
+  methods: {
+    onMouseover() {
+      this.isMousedOver = true;
+    },
+    onMouseout() {
+      this.isMousedOver = false;
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

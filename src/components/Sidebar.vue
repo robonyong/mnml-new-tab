@@ -6,11 +6,11 @@
         this.format(this.now, "MM/DD/YY")
       }}
     </h2>
-    <div v-if="oauthState !== LoggedInStates.LOGGED_IN">
+    <div v-if="oauthState !== this.loggedInStates.LOGGED_IN">
       <div><button @click="login">Login to Google</button></div>
       <div>to display today's events</div>
     </div>
-    <div v-if="oauthState === LoggedInStates.LOGGED_IN">
+    <div v-if="oauthState === this.loggedInStates.LOGGED_IN">
       <div><button @click="logout">Logout</button></div>
       <div v-if="calendarEvents.length === 0">
         No more scheduled events today
@@ -26,13 +26,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Vue } from "vue-property-decorator";
+import { defineComponent } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { endOfDay, format } from "date-fns";
 
 import CalendarEvent from "./CalendarEvent.vue";
 
 import * as storage from "../storage";
+import { signIn } from "../auth";
 
 import { CalendarEventRecord } from "../types";
 
@@ -42,7 +43,7 @@ enum LoggedInStates {
   UNKNOWN = "UNKNOWN",
   LOGGED_IN = "LOGGED_IN",
   LOGGED_OUT = "LOGGED_OUT",
-  FAILED = "FAILED"
+  FAILED = "FAILED",
 }
 
 type Calendar = {
@@ -51,113 +52,127 @@ type Calendar = {
   items: CalendarEventRecord[];
 };
 
-// @ts-ignore
-const checkCast = (input: any): T => input;
-
-@Component({
-  components: {
-    CalendarEvent,
-    "font-awesome-icon": FontAwesomeIcon
-  }
-})
-export default class Sidebar extends Vue {
-  attemptedRelogin = false;
-  format = format;
-  now = new Date();
-  oauthState = LoggedInStates.UNKNOWN;
+type Data = {
+  attemptedRelogin: boolean;
+  format: typeof format;
+  now: Date;
+  oauthState: LoggedInStates;
   updateTimeInterval?: number;
-  calendarEmail?: String;
-  calendarTimeZone?: String;
-  calendarEvents: CalendarEventRecord[] = [];
+  calendarEmail?: string;
+  calendarTimeZone?: string;
+  calendarEvents: CalendarEventRecord[];
+  loggedInStates: typeof LoggedInStates;
+};
 
-  LoggedInStates = LoggedInStates;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const checkCast = (input: any): typeof input => input;
 
+export default defineComponent({
+  name: "CalendarContainer",
   created() {
     this.updateTimeInterval = window.setInterval(
       () => (this.now = new Date()),
       1000
     );
 
-    storage.get("oauthToken").then(response => {
+    storage.get("oauthToken").then((response) => {
       if (response) {
-        this.oauthState = LoggedInStates.LOGGED_IN;
+        this.oauthState = this.loggedInStates.LOGGED_IN;
         const authToken: string = checkCast(response);
         this.fetchEvents(authToken);
       } else {
-        this.oauthState = LoggedInStates.LOGGED_OUT;
+        this.oauthState = this.loggedInStates.LOGGED_OUT;
       }
     });
-  }
-
-  beforeDestroy() {
+  },
+  beforeUnmount() {
     clearInterval(this.updateTimeInterval);
-  }
-
-  login() {
-    chrome.identity.getAuthToken({ interactive: true }, token => {
-      if (token) {
-        storage.set({ oauthToken: token });
-        this.oauthState = LoggedInStates.LOGGED_IN;
-        this.fetchEvents(token);
-      } else {
+  },
+  data(): Data {
+    return {
+      attemptedRelogin: false,
+      format: format,
+      now: new Date(),
+      oauthState: LoggedInStates.UNKNOWN,
+      updateTimeInterval: undefined,
+      calendarEmail: undefined,
+      calendarTimeZone: undefined,
+      calendarEvents: [],
+      loggedInStates: LoggedInStates,
+    };
+  },
+  components: {
+    CalendarEvent,
+    "font-awesome-icon": FontAwesomeIcon,
+  },
+  methods: {
+    async login() {
+      try {
+        const token = await signIn();
+        if (token) {
+          console.log(token);
+          storage.set({ oauthToken: token });
+          this.oauthState = this.loggedInStates.LOGGED_IN;
+          this.fetchEvents(token);
+        } else {
+          storage.set({ oauthToken: "" });
+          this.oauthState = this.loggedInStates.FAILED;
+        }
+      } catch (error) {
+        console.error(error);
         storage.set({ oauthToken: "" });
-        this.oauthState = LoggedInStates.FAILED;
+        this.oauthState = this.loggedInStates.FAILED;
       }
-    });
-  }
-
-  logout() {
-    storage.set({ oauthToken: "" });
-    this.oauthState = LoggedInStates.LOGGED_OUT;
-  }
-
-  failLogin(token: string) {
-    chrome.identity.removeCachedAuthToken({ token }, () => {
+    },
+    logout() {
+      storage.set({ oauthToken: "" });
+      this.oauthState = this.loggedInStates.LOGGED_OUT;
+    },
+    failLogin() {
       if (!this.attemptedRelogin) {
         this.attemptedRelogin = true;
         this.login();
         return;
       }
       storage.set({ oauthToken: "" });
-      this.oauthState = LoggedInStates.FAILED;
-    });
-  }
-
-  fetchEvents(token: string) {
-    if (!token) {
-      throw new Error("Empty token");
-    }
-    const now = format(new Date(), "YYYY-MM-DD[T]HH:mm:ssZ");
-    const eod = format(endOfDay(new Date()), "YYYY-MM-DD[T]HH:mm:ssZ");
-    fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?orderBy=startTime&timeMin=${now}&timeMax=${eod}&singleEvents=true&key=${API_KEY}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
+      this.oauthState = this.loggedInStates.FAILED;
+    },
+    fetchEvents(token: string) {
+      if (!token) {
+        throw new Error("Empty token");
       }
-    )
-      .then((response: Response) => {
-        if (!response.ok) {
-          throw new Error(
-            `Request failed with ${response.status} - ${response.statusText}`
-          );
+      const now = format(new Date(), "YYYY-MM-DD[T]HH:mm:ssZ");
+      const eod = format(endOfDay(new Date()), "YYYY-MM-DD[T]HH:mm:ssZ");
+      fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/primary/events?orderBy=startTime&timeMin=${now}&timeMax=${eod}&singleEvents=true&key=${API_KEY}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-        return response.json();
-      })
-      .then((calendar: Calendar) => {
-        this.calendarEmail = calendar.summary;
-        this.calendarTimeZone = calendar.timeZone;
-        this.calendarEvents = calendar.items;
-      })
-      .catch((error: Error) => {
-        console.error(error);
-        this.failLogin(token);
-      });
-  }
-}
+      )
+        .then((response: Response) => {
+          if (!response.ok) {
+            throw new Error(
+              `Request failed with ${response.status} - ${response.statusText}`
+            );
+          }
+          return response.json();
+        })
+        .then((calendar: Calendar) => {
+          this.calendarEmail = calendar.summary;
+          this.calendarTimeZone = calendar.timeZone;
+          this.calendarEvents = calendar.items;
+        })
+        .catch((error: Error) => {
+          console.error(error);
+          this.failLogin();
+        });
+    },
+  },
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

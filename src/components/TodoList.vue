@@ -1,52 +1,64 @@
 <template>
   <Draggable
-    tag="div"
+    tag="transition-group"
+    :component-data="{ name: 'flip-list' }"
     ghost-class="ghost"
     group="todoList"
+    item-key="id"
     :list="items"
+    @start="drag = true"
+    @end="drag = false"
     @change="onChange"
   >
-    <transition-group
-      class="todo-list"
-      type="transition"
-      tag="div"
-      :name="'flip-list'"
-    >
+    <template #item="{ element, index }">
       <TodoItem
-        v-for="(item, idx) in items"
-        :text="item.text"
-        :completed="item.completed"
-        :key="item.id"
-        :onCheck="onCheck(idx)"
-        :onRemove="onRemove(idx)"
+        :id="element.id"
+        :text="element.text"
+        :completed="element.completed"
+        :key="element.id"
+        :onCheck="onCheck(index)"
+        :onRemove="onRemove(index)"
       />
-    </transition-group>
+    </template>
   </Draggable>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType } from "vue";
 import Draggable from "vuedraggable";
 
 import TodoItem from "./TodoItem.vue";
 
 import { TodoRecord } from "../types";
 
-// @ts-ignore
-const checkCast = (input: any): T => input;
-
-@Component({
+export default defineComponent({
   components: {
     TodoItem,
-    Draggable
-  }
-})
-export default class TodoList extends Vue {
-  @Prop({ type: Array, default: [] }) readonly items!: TodoRecord[];
-  @Prop(Function) onChange!: (event: any) => void;
-  @Prop(Function) onCheck!: (index: number) => () => void;
-  @Prop(Function) onRemove!: (index: number) => () => void;
-}
+    Draggable,
+  },
+  props: {
+    items: {
+      readonly: true,
+      required: true,
+      default() {
+        return [];
+      },
+      type: Array as PropType<TodoRecord[]>,
+    },
+    onChange: {
+      required: true,
+      type: Function as PropType<(event: unknown) => void>,
+    },
+    onCheck: {
+      required: true,
+      type: Function as PropType<(index: number) => void>,
+    },
+    onRemove: {
+      required: true,
+      type: Function as PropType<(index: number) => void>,
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

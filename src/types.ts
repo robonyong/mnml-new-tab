@@ -1,30 +1,30 @@
 export type TodoRecord = {
-  id: String;
-  text: String;
-  completed: Boolean;
+  id: string;
+  text: string;
+  completed: boolean;
 };
 
 export type CalendarEventRecord = {
-	id: String;
-	summary: String;
-	description: String;
-	location: String;
-	hangoutLink: String;
-	htmlLink: String;
-	organizer: {
-    id: String,
-    email: String,
-    displayName: String,
-    self: Boolean
-  },
+  id: string;
+  summary: string;
+  description: string;
+  location: string;
+  hangoutLink: string;
+  htmlLink: string;
+  organizer: {
+    id: string;
+    email: string;
+    displayName: string;
+    self: boolean;
+  };
   start: {
-    date: String;
-    dateTime: String;
-    timeZone: String;
-  },
+    date: string;
+    dateTime: string;
+    timeZone: string;
+  };
   end: {
-    date: String;
-    dateTime: String;
-    timeZone: String;
-  },
-}
+    date: string;
+    dateTime: string;
+    timeZone: string;
+  };
+};

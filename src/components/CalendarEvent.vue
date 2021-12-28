@@ -1,50 +1,56 @@
 <template>
   <div class="calendar-event">
-    <foldable>
-      <div>
-        <div>
-          {{ format(parse(event.start.dateTime), "HH:mm") }} -
-          {{ format(parse(event.end.dateTime), "HH:mm") }} {{ event.summary }}
-        </div>
-        <div>
-          <a :href="event.hangoutLink" alt="Join Hangout"
-            ><font-awesome-icon icon="video"></font-awesome-icon></a
-          >&nbsp;<a :href="event.htmlLink" alt="View on Calendar"
-            ><font-awesome-icon icon="external-link-alt"></font-awesome-icon
-          ></a>
-        </div>
-        <div class="small">Location: {{ location }}</div>
-        <div v-html="event.description"></div>
-      </div>
-    </foldable>
+    <div>{{ timeRange }} {{ event.summary }}</div>
+    <div>
+      <a v-if="!!event.hangoutLink" :href="event.hangoutLink" alt="Join Hangout"
+        ><font-awesome-icon icon="video"></font-awesome-icon></a
+      >&nbsp;<a :href="event.htmlLink" alt="View on Calendar"
+        ><font-awesome-icon icon="external-link-alt"></font-awesome-icon
+      ></a>
+    </div>
+    <div class="small">Location: {{ location }}</div>
+    <!-- <div v-html="event.description"></div> -->
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent, PropType } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { parse, format } from "date-fns";
 
-import foldable from "./Foldable.vue";
-
 import { CalendarEventRecord } from "../types";
 
-@Component({
+export default defineComponent({
   components: {
-    foldable,
-    "font-awesome-icon": FontAwesomeIcon
-  }
-})
-export default class CalendarEvent extends Vue {
-  @Prop(Object) event!: CalendarEventRecord;
-
-  parse = parse;
-  format = format;
-
-  get location() {
-    return this.event.location || "N/A";
-  }
-}
+    "font-awesome-icon": FontAwesomeIcon,
+  },
+  data() {
+    return {
+      parse,
+      format,
+    };
+  },
+  props: {
+    event: {
+      required: true,
+      type: Object as PropType<CalendarEventRecord>,
+    },
+  },
+  computed: {
+    location: function (): string {
+      return this.event.location || "N/A";
+    },
+    timeRange: function (): string {
+      if (this.event.start.dateTime) {
+        return `${format(parse(this.event.start.dateTime), "HH:mm")} - ${format(
+          parse(this.event.end.dateTime),
+          "HH:mm"
+        )}`;
+      }
+      return "All Day";
+    },
+  },
+});
 </script>
 
 <style scoped lang="scss">

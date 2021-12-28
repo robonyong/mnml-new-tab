@@ -7,19 +7,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { defineComponent } from "vue";
 import Notes from "./Notes.vue";
 import Sidebar from "./Sidebar.vue";
 import TodoContainer from "./TodoContainer.vue";
 
-@Component({
+export default defineComponent({
+  name: "NewTab",
   components: {
     Notes,
     Sidebar,
-    TodoContainer
-  }
-})
-export default class NewTab extends Vue {}
+    TodoContainer,
+  },
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
