@@ -23,7 +23,7 @@ const updateNotes = debounce((notes: string) => {
 }, 1000);
 
 export default defineComponent({
-  name: "Notes",
+  name: "NotesContainer",
   components: {
     "quill-editor": QuillEditor,
   },
@@ -35,9 +35,11 @@ export default defineComponent({
     },
   },
   mounted() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.get("todoNotes").then((storedNotes: any) => {
       this.notes = storedNotes;
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.subscribe("todoNotes", (changes: any) => {
       if (this.notes !== changes && Date.now() - this.lastUpdated > 1000) {
         this.notes = changes;

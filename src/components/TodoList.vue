@@ -9,15 +9,17 @@
     @start="drag = true"
     @end="drag = false"
     @change="onChange"
-    ><template #item="{ element, index }"
-      ><TodoItem
+  >
+    <template #item="{ element, index }">
+      <TodoItem
         :id="element.id"
         :text="element.text"
         :completed="element.completed"
         :key="element.id"
         :onCheck="onCheck(index)"
         :onRemove="onRemove(index)"
-    /></template>
+      />
+    </template>
   </Draggable>
 </template>
 
@@ -38,12 +40,14 @@ export default defineComponent({
     items: {
       readonly: true,
       required: true,
-      default: [],
+      default() {
+        return [];
+      },
       type: Array as PropType<TodoRecord[]>,
     },
     onChange: {
       required: true,
-      type: Function as PropType<(event: any) => void>,
+      type: Function as PropType<(event: unknown) => void>,
     },
     onCheck: {
       required: true,

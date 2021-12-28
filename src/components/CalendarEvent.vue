@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed } from "vue";
+import { defineComponent, PropType } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { parse, format } from "date-fns";
 

@@ -62,13 +62,13 @@ type Data = {
   calendarTimeZone?: string;
   calendarEvents: CalendarEventRecord[];
   loggedInStates: typeof LoggedInStates;
-  chrome: typeof chrome;
 };
 
-// @ts-ignore
-const checkCast = (input: any): T => input;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const checkCast = (input: any): typeof input => input;
 
 export default defineComponent({
+  name: "CalendarContainer",
   created() {
     this.updateTimeInterval = window.setInterval(
       () => (this.now = new Date()),
@@ -99,7 +99,6 @@ export default defineComponent({
       calendarTimeZone: undefined,
       calendarEvents: [],
       loggedInStates: LoggedInStates,
-      chrome: chrome,
     };
   },
   components: {

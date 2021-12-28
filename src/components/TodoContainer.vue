@@ -30,8 +30,8 @@ import { TodoRecord } from "../types";
 
 type TodoKeys = "todos" | "completedTodos";
 
-// @ts-ignore
-const checkCast = (input: any): T => input;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const checkCast = (input: any): typeof input => input;
 
 type Data = {
   todos: TodoRecord[];
@@ -50,18 +50,22 @@ export default defineComponent({
     };
   },
   mounted() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.get("todos").then((storedTodos?: any) => {
       const loadedTodos: TodoRecord[] = checkCast(storedTodos);
       this.todos = loadedTodos ? loadedTodos : [];
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.subscribe("todos", (changes: any) => {
       const changedTodos: TodoRecord[] = checkCast(changes);
       this.todos = changedTodos ? changedTodos : [];
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.get("completedTodos").then((storedTodos?: any) => {
       const loadedTodos: TodoRecord[] = checkCast(storedTodos);
       this.completedTodos = loadedTodos ? loadedTodos : [];
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     storage.subscribe("completedTodos", (changes: any) => {
       const changedTodos: TodoRecord[] = checkCast(changes);
       this.completedTodos = changedTodos ? changedTodos : [];
@@ -69,10 +73,12 @@ export default defineComponent({
   },
   methods: {
     setupStorageSubs(key: TodoKeys) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       storage.get(key).then((storedTodos: any = []) => {
         const loadedTodos: TodoRecord[] = checkCast(storedTodos);
         this[key] = loadedTodos;
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       storage.subscribe(key, (changes: any) => {
         const changedTodos: TodoRecord[] = checkCast(changes);
         this[key] = changedTodos ? changedTodos : [];
@@ -111,6 +117,7 @@ export default defineComponent({
       };
     },
     onListDragUpdated(key: TodoKeys) {
+      // eslint-disable-next-line
       return (event: any) => {
         if (event.added) {
           this.onToggleTodo(key, event.added.newIndex, event.added.element);

@@ -2,13 +2,8 @@
   <foldable class="custom-foldable">
     <slot></slot>
 
-    <template
-      align="center"
-      class="custom-foldable-toggle small"
-      v-slot:view-more="{ toggle, collapsed }"
-      @click="toggle"
-    >
-      <div>
+    <template v-slot:view-more="{ toggle, collapsed }">
+      <div align="center" class="custom-foldable-toggle small" @click="toggle">
         {{ collapsed ? "+ Show more" : "- Collapse" }}
       </div>
     </template>
@@ -18,13 +13,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import foldable from "vue-foldable";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 export default defineComponent({
   name: "FoldableContainer",
   components: {
     foldable,
-    "font-awesome-icon": FontAwesomeIcon,
   },
 });
 </script>
